@@ -34,30 +34,64 @@ functions:
       - http:
           path: notes
           method: post
+          cors: true
+          authorizer: aws_iam
+
   get:
     handler: get.main
     events:
       - http:
           path: notes/{id}
           method: get
+          cors: true
+          authorizer: aws_iam
+
   list:
     handler: list.main
     events:
       - http:
           path: notes
           method: get
+          cors: true
+          authorizer: aws_iam
+
   update:
     handler: update.main
     events:
       - http:
           path: notes/{id}
           method: put
+          cors: true
+          authorizer: aws_iam
+
   delete:
-    # Defines an HTTP API endpoint that calls the main function in delete.js
-    # - path: url path is /notes/{id}
-    # - method: DELETE request
     handler: delete.main
     events:
       - http:
-        path: notes/{id}
-        method: delete
+          path: notes/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+# Create our resources with separate CloudFormation templates
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
